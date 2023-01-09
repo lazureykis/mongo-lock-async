@@ -9,7 +9,7 @@ description = "Distributed locks with MongoDB"
 
 [dependencies]
 mongodb = "2"
-rand = "*"
+rand = "0"
 
 [dev-dependencies]
-tokio = "*"
+tokio = "1"
