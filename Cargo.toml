@@ -1,15 +1,18 @@
 [package]
 name = "mongo-lock-async"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 license = "MIT"
-description = "Distributed locks with MongoDB"
+description = "Distributed mutex locks with MongoDB"
+authors = ["Pavel Lazureykis"]
+documentation = "https://docs.rs/mongo-lock-async"
+repository = "https://github.com/lazureykis/mongo-lock-async"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 mongodb = "2"
-rand = "0"
 
 [dev-dependencies]
 tokio = "1"
+rand = "0"

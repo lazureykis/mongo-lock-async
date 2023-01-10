@@ -12,7 +12,7 @@ Add this crate to `Cargo.toml`
 
 ```toml
 [dependencies]
-mongo_lock_async = "0"
+mongo_lock_async = "0.2.0"
 ```
 
 ## Usage
