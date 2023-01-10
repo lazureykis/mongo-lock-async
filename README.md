@@ -1,5 +1,5 @@
 # Distributed mutually exclusive locks in MongoDB.
-[![Crates.io](https://img.shields.io/crates/v/mongo_lock_async.svg)](https://crates.io/crates/mongo_lock_async) [![docs.rs](https://docs.rs/mongo_lock_async/badge.svg)](https://docs.rs/mongo_lock_async)
+[![Crates.io](https://img.shields.io/crates/v/mongo-lock-async.svg)](https://crates.io/crates/mongo-lock-async) [![docs.rs](https://docs.rs/mongo-lock-async/badge.svg)](https://docs.rs/mongo-lock-async)
 
 
 This crate contains only async implementation.
