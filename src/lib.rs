@@ -57,7 +57,7 @@ pub struct Lock {
 }
 
 impl Lock {
-    /// Tries to acquire lock with the given key.
+    /// Tries to acquire the lock with the given key.
     pub async fn try_acquire(
         mongo: &Client,
         key: &str,
@@ -65,7 +65,7 @@ impl Lock {
     ) -> Result<Option<Lock>, Error> {
         let (now, expires_at) = util::now_and_expires_at(ttl);
 
-        // Update expired locks if mongodb didn't clean it yet.
+        // Update expired locks if MongoDB didn't clean them yet.
         let query = doc! {
             "_id": key,
             "expiresAt": {"$lte": now},
