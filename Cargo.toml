@@ -1,9 +1,10 @@
 [package]
 name = "mongo-lock-async"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 license = "MIT"
 description = "Distributed mutex locks with MongoDB"
+keywords = ["distributed", "locking", "concurrency", "mongo", "mongodb"]
 authors = ["Pavel Lazureykis"]
 documentation = "https://docs.rs/mongo-lock-async"
 repository = "https://github.com/lazureykis/mongo-lock-async"
