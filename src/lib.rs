@@ -31,10 +31,12 @@
 //! }
 //! ```
 
+mod error;
 mod util;
 
+pub use error::Error;
 use mongodb::bson::{doc, Document};
-use mongodb::error::{Error, ErrorKind, WriteError, WriteFailure};
+use mongodb::error::{ErrorKind, WriteError, WriteFailure};
 use mongodb::options::{IndexOptions, UpdateOptions};
 use mongodb::{Client, Collection, IndexModel};
 use std::time::Duration;
@@ -100,8 +102,37 @@ impl Lock {
                 {
                     Ok(None)
                 } else {
-                    Err(err)
+                    Err(err.into())
                 }
+            }
+        }
+    }
+
+    /// Tries to acquire the lock with the given key.
+    /// If the lock is already acquired, waits for it to be released
+    /// up to `lock_wait_timeout` time checking every `lock_poll_interval`.
+    pub async fn try_acquire_with_timeout(
+        mongo: &Client,
+        key: &str,
+        key_ttl: Duration,
+        lock_wait_timeout: Duration,
+        lock_poll_interval: Duration,
+    ) -> Result<Option<Lock>, Error> {
+        let start = std::time::Instant::now();
+        loop {
+            match Self::try_acquire(mongo, key, key_ttl).await {
+                Ok(Some(lock)) => return Ok(Some(lock)),
+                Ok(None) => {
+                    if start.elapsed() > lock_wait_timeout {
+                        return Ok(None);
+                    }
+                    tokio::time::sleep(lock_poll_interval).await;
+                }
+                Err(err) => return Err(err),
+            }
+
+            if start.elapsed() > lock_wait_timeout {
+                return Err("Cannot acquire lock".into());
             }
         }
     }
@@ -139,6 +170,8 @@ pub async fn prepare_database(mongo: &Client) -> Result<(), Error> {
 
 #[cfg(test)]
 mod tests {
+    use tokio::time::Instant;
+
     use super::*;
 
     fn gen_random_key() -> String {
@@ -212,5 +245,38 @@ mod tests {
             .await
             .unwrap()
             .is_some());
+    }
+
+    #[tokio::test]
+    async fn wait_for_lock() {
+        let mongo = Client::with_uri_str("mongodb://localhost").await.unwrap();
+
+        prepare_database(&mongo).await.unwrap();
+
+        let key = gen_random_key();
+
+        assert!(Lock::try_acquire(&mongo, &key, Duration::from_secs(3))
+            .await
+            .unwrap()
+            .is_some());
+
+        let now = Instant::now();
+        assert!(Lock::try_acquire_with_timeout(
+            &mongo,
+            &key,
+            Duration::from_secs(3),
+            Duration::from_secs(5),
+            Duration::from_millis(100)
+        )
+        .await
+        .unwrap()
+        .is_some());
+
+        assert!(now.elapsed() > Duration::from_secs(2));
+
+        assert!(Lock::try_acquire(&mongo, &key, Duration::from_secs(1))
+            .await
+            .unwrap()
+            .is_none());
     }
 }

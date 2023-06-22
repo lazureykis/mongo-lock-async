@@ -1,6 +1,6 @@
 [package]
 name = "mongo-lock-async"
-version = "0.2.2"
+version = "0.3.0"
 edition = "2021"
 license = "MIT"
 description = "Distributed mutex locks with MongoDB"
@@ -13,7 +13,7 @@ repository = "https://github.com/lazureykis/mongo-lock-async"
 
 [dependencies]
 mongodb = "2"
+tokio = "1"
 
 [dev-dependencies]
-tokio = "1"
 rand = "0"
