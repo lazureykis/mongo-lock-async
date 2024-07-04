@@ -37,7 +37,7 @@ mod util;
 pub use error::Error;
 use mongodb::bson::{doc, Document};
 use mongodb::error::{ErrorKind, WriteError, WriteFailure};
-use mongodb::options::{IndexOptions, UpdateOptions};
+use mongodb::options::IndexOptions;
 use mongodb::{Client, Collection, IndexModel};
 use std::time::Duration;
 
@@ -82,9 +82,11 @@ impl Lock {
             },
         };
 
-        let options = UpdateOptions::builder().upsert(true).build();
-
-        match collection(mongo).update_one(query, update, options).await {
+        match collection(mongo)
+            .update_one(query, update)
+            .upsert(true)
+            .await
+        {
             Ok(result) => {
                 if result.upserted_id.is_some() || result.modified_count == 1 {
                     Ok(Some(Lock {
@@ -140,7 +142,7 @@ impl Lock {
     /// Releases the lock.
     pub async fn release(&self) -> Result<bool, Error> {
         let result = collection(&self.mongo)
-            .delete_one(doc! {"_id": &self.id}, None)
+            .delete_one(doc! {"_id": &self.id})
             .await?;
 
         Ok(result.deleted_count == 1)
@@ -163,7 +165,7 @@ pub async fn prepare_database(mongo: &Client) -> Result<(), Error> {
         .options(options)
         .build();
 
-    collection(mongo).create_index(model, None).await?;
+    collection(mongo).create_index(model).await?;
 
     Ok(())
 }
